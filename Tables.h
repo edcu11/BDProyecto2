@@ -18,3 +18,4 @@ void printList(std::vector<string> list);
 string MixColumnsAndTypes(std::vector<string> columns, std::vector<string> types);
 string GetFields(string columns, string types);bool CreateTable(std::vector<string> list);
 bool InsertRegister(std::vector<string> list);
+bool WriteRowToBlock(vector<pair<string, string>> fields, vector<int> sizes, int blockToWrite, int posToWrite, int idRow, string databaseName);

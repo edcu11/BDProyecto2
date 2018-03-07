@@ -12,6 +12,7 @@
 #include "CreateDisk.h"
 #include "Tables.h"
 #include "Utils.h"
+#include "Select.h"
 
 using namespace std;
 
@@ -26,7 +27,7 @@ int main(int argc, char const *argv[]) {
 
   string menu = "";
   int x = 3;
-  string connectedDatabase = "edgar2.dbo";
+  string connectedDatabase = "jona.dbo";
 
 
   while (menu.compare("exit") != 0) {
@@ -58,6 +59,19 @@ int main(int argc, char const *argv[]) {
       lista.insert(lista.begin(), connectedDatabase);
       lista.insert(lista.begin() + 1, tableName);
       InsertRegister(lista);
+    }
+
+    if(SContains(menu, "select") )
+    {
+      menu = RemoveUntil(menu, " ");
+      std::string tableName = GetUntil(menu, " ");
+      menu = RemoveUntil(menu, " ");
+      std::cout << "menus: " << menu << '\n';
+      std::vector<string> lista = SplitWord(menu, '-');
+
+      lista.insert(lista.begin(), connectedDatabase);
+      lista.insert(lista.begin() + 1, tableName);
+      //SelectFromTable(lista);
     }
 
 

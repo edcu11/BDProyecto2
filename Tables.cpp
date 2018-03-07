@@ -1,5 +1,6 @@
 #include "Tables.h"
 #include "Utils.h"
+#include <math.h>
 
 #ifndef BLOCK_SIZE
 #define BLOCK_SIZE 4096
@@ -15,15 +16,17 @@
 
 
 using namespace std;
-
-int GetPosForNewTable(char * buffer)
+//RECORDA QUE CAMBIASTE ESTA MIRDA PRPBA CREAR TABLA DE NUEVO FUCK
+int GetPosForNewData(char * buffer, int registerLength)
 {
   int idTable = 1;
-  for (size_t i = 0; i < 19; i++) {
-    memcpy(&idTable, buffer + (i * TABLE_REGISTER_SIZE), sizeof(int));
+  int cantidadAceptable = floor(BLOCK_SIZE / registerLength);
+  std::cout << "cantidad cantidadAceptable" << cantidadAceptable << '\n';
+  for (size_t i = 0; i < cantidadAceptable; i++) {
+    memcpy(&idTable, buffer + (i * registerLength), sizeof(int));
     //std::cout << "idTable: " << idTable <<'\n';
     if (idTable == 0) {
-      return (i) * TABLE_REGISTER_SIZE;
+      return (i) * registerLength;
     }
   }
   std::cout << "Table index is full!" << '\n';
@@ -85,7 +88,7 @@ bool CreateTable(std::vector<string> list)
   std::cout << "tableI: " << tableIndexBlock << '\n';
 
   char * buffer = GetTableIndexData(list[2], tableIndexBlock);
-  int posToWriteNewTable = GetPosForNewTable(buffer);
+  int posToWriteNewTable = GetPosForNewData(buffer, TABLE_REGISTER_SIZE);
   int idTable = (posToWriteNewTable / TABLE_REGISTER_SIZE) + 1;
   std::cout << "pos free : " << posToWriteNewTable << '\n';
 
@@ -173,6 +176,138 @@ void InsertValuesToMap(vector<pair<string, string>>  * fields, vector<string> co
 
 }
 
+int GetTypeSize(string type)
+{
+
+  std::cout << "analizing type: "<< type << '\n';
+  int size = 0;
+  if (type.compare("int") == 0)
+    size = sizeof(int);
+  if (type.compare("double") == 0)
+    size = sizeof(double);
+  if (SContains(type, "char"))
+  {
+    type = RemoveUntil(type, "(");
+    type = type.erase(type.size() - 1);
+    size =  std::stoi( type );
+  }
+
+  return size;
+
+
+}
+
+vector<int> GetRegSize(vector<pair<string, string>> fields)
+{
+  string type = "";
+  vector<int> fieldsSizes;
+  for (size_t i = 0; i < fields.size(); i++) {
+    type = SplitWord(fields[i].first, '!')[1];
+    fieldsSizes.push_back(GetTypeSize(type));
+  }
+
+  return fieldsSizes;
+}
+
+int SumSizes(vector<int> size)
+{
+  int total = 0;
+  for (size_t i = 0; i < size.size(); i++)
+    total += size[i];
+  return total;
+}
+
+FreeIndexData GetPosForRegister(int initialBlock, int registerLength, string databaseName)
+{
+
+  char * buffer = (char *)calloc(BLOCK_SIZE, 1);
+  readFile(initialBlock, buffer, (char *)databaseName.c_str());
+  int lastByte = -1;
+  int readedBlock = initialBlock;
+  FreeIndexData freeIndex;
+
+  while(lastByte != 0)
+  {
+    memcpy(&lastByte, buffer + (4092), sizeof(int));
+    std::cout << "last byte: "<< lastByte << '\n';
+    if (lastByte == 0) {
+      freeIndex.block = readedBlock;
+      freeIndex.index = GetPosForNewData(buffer, registerLength + 4);
+
+      if (freeIndex.index == -1) {
+        std::cout << "there was no more space, allocating..." << '\n';
+        FreeIndexData bitmapData = GetFreeBlock(databaseName);
+        writeFile(2 + bitmapData.block, bitmapData.buffer, (char*)databaseName.c_str()); //writing back bitmapBlock modified
+
+        memcpy(&buffer[BLOCK_SIZE - 4], &bitmapData.index, sizeof(int)); //ORGANIZACION EXTENDIDA
+        writeFile(freeIndex.block, buffer, (char*)databaseName.c_str());
+        freeIndex.block = bitmapData.index;
+        freeIndex.index = 0;
+      }
+      std::cout << "found pos for new reg: " << freeIndex.block << " --- " << freeIndex.index << '\n';
+      return freeIndex;
+    }
+    readFile(lastByte, buffer, (char *)databaseName.c_str());
+    readedBlock = lastByte;
+    std::cout << "read new buffer!" << '\n';
+  }
+
+}
+
+bool InsertToDisk(TableRegister registerT, string databaseName)
+{
+
+
+  vector<int> regSizes = GetRegSize(registerT.fields);
+  int totalSize = SumSizes(regSizes);
+
+  FreeIndexData freeIndex = GetPosForRegister(registerT.initialBlock, totalSize, databaseName);
+
+  int idRow = (freeIndex.index / totalSize) + 1;
+  std::cout << "posToWrite: "<< freeIndex.index << " -- " << idRow << " -- " << freeIndex.block << '\n';
+
+  WriteRowToBlock(registerT.fields, regSizes, freeIndex.block, freeIndex.index, idRow, databaseName);
+
+}
+
+bool WriteRowToBlock(vector<pair<string, string>> fields, vector<int> sizes, int blockToWrite, int posToWrite, int idRow, string databaseName)
+{
+  char * buffer = (char *)calloc(BLOCK_SIZE, 1);
+  readFile(blockToWrite, buffer, (char *)databaseName.c_str());
+
+  int valueI = 0;
+  double valueD = 0.0;
+  int bytesWritten = 4;
+
+  memcpy(&buffer[posToWrite], &idRow, sizeof(int)); //ASI SE ESCRIBRE UN NUMERO
+
+  for (size_t i = 0; i < fields.size(); i++) {
+    std::cout << "\t\t iteracion" << '\n';
+    if (sizes[i] == sizeof(int)) {
+      valueI = std::stoi(fields[i].second);
+      memcpy(&buffer[posToWrite + bytesWritten], &valueI, sizeof(int)); //ASI SE ESCRIBRE UN NUMERO
+      bytesWritten += sizeof(int);
+      std::cout << "writing: "<< valueI << " bytesWritten: " << " at: " << (posToWrite + bytesWritten) << "     "<< bytesWritten << '\n';
+      continue;
+    }
+    if (sizes[i] == sizeof(double)) {
+      valueD = atof((fields[i].second).c_str());
+      memcpy(&buffer[posToWrite + bytesWritten], &valueD, sizeof(double)); //ASI SE ESCRIBRE UN NUMERO
+      bytesWritten += sizeof(double);
+      std::cout << "writing: "<< valueD << " bytesWritten: "<< " at: " << (posToWrite + bytesWritten) << "     "<< bytesWritten << '\n';
+      continue;
+    }
+    else
+    {
+      char  * valor = (char *)fields[i].second.c_str();
+      memcpy(buffer + bytesWritten, valor, fields[i].second.size());
+      bytesWritten += sizes[i];
+      std::cout << "writing: "<< fields[i].second << "size: " << fields[i].second.size() << " bytesWritten: "<< " at: " << (posToWrite + bytesWritten) << "     "<< bytesWritten << '\n';
+    }
+  }
+
+  writeFile(blockToWrite, buffer, (char *)databaseName.c_str());
+}
 
 bool InsertRegister(std::vector<string> list)
 {
@@ -194,15 +329,7 @@ bool InsertRegister(std::vector<string> list)
   InsertValuesToMap(&registerT.fields, columns, values);
   PrintPairList(registerT.fields);
 
-
-
-
-
-
-
-
-
-
+  InsertToDisk(registerT, list[0]);
 
   return true;
 }
