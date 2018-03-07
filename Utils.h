@@ -5,7 +5,6 @@
 #include <iostream>
 #include <fstream>
 #include "bitset"
-#include "BasicFileSystem.h"
 #include <utility>      // std::pair, std::make_pair
 
 class FreeIndexData{
@@ -21,19 +20,26 @@ class FreeIndexData{
     int block;
 };
 
+using namespace std;
 
-bool SContains(std::string word, std::string searched);
-std::string Actualsub(std::string word, int from, int to);
-std::vector<std::string> SplitWord(std::string sentence, char splitter);
+void printList(std::vector<string> list);
+char * GetTableIndexData(string fileName, int tableIndexBlock);
+int GetTypeSize(string type);
+vector<int> GetRegSize(vector<pair<string, string>> fields);
+int SumSizes(vector<int> size);
+bool SContains(string word, string searched);
+string Actualsub(string word, int from, int to);
+string TrimWord(string word);
+std::vector<string> SplitWord(string sentence, char splitter);
+std::bitset<8> GetBitSet(char * buffer, int pos);
+FreeIndexData GetFreeBlock(string fileName);
 std::vector<std::string> ParseParams(std::string params);
 std::string RemoveUntil(std::string word, std::string letter);
 std::string GetUntil(std::string word, std::string letter);
-std::bitset<8> GetBitSet(char * buffer, int pos);
-FreeIndexData GetFreeBlock(std::string fileName);
-int GetBitmapBlocksAmount(std::string fileName);
-int keyAt(std::vector<std::pair<std::string, std::string>> fields, std::string index);
+int GetBitmapBlocksAmount(string fileName);
 void PrintPairList(std::vector<std::pair<std::string, std::string>> fields);
-
+int keyAt(std::vector<std::pair<std::string, std::string>> fields, string key);
+string GetColumnsType(string field);
 
 class TableRegister{
 
@@ -59,12 +65,53 @@ class TableRegister{
 
       int removeAt = keyAt(fields, "$$");
       fields.erase(fields.begin() + removeAt);
-
-
     }
 
     std::string tableName;
     int tableId;
     int initialBlock;
     std::vector<std::pair<std::string, std::string>> fields;
+
+    void LoadFields(char * rowData, int regAt)
+    {
+      string columnType = "";
+      int typeSize = 0;
+      int bytesRead = 4;
+      int valueI = 0;
+      double valueD = 0;
+      char * valueS = (char *)calloc(4000,1);
+      //std::cout << "HEY IM REQADING AT: "<< regAt << "  -  "<< bytesRead << '\n';
+
+
+      for (size_t i = 0; i < fields.size(); i++) {
+        columnType = GetColumnsType(fields[i].first);
+        typeSize = GetTypeSize(columnType);
+        //std::cout << "HEY IM REQADING AT: "<< regAt << "  -  "<< bytesRead << '\n';
+        if (SContains(columnType, "int")) {
+          memcpy(&valueI, rowData + regAt + bytesRead, sizeof(int));
+          bytesRead += sizeof(int);
+          fields[i].second = to_string(valueI);
+          //std::cout << "Copied int to field: " << fields[i].second << '\n';
+          continue;
+        }
+        if (SContains(columnType, "double")) {
+          memcpy(&valueD, rowData + regAt + bytesRead, sizeof(double));
+          bytesRead += sizeof(double);
+          fields[i].second = to_string(valueD);
+          //std::cout << "Copied double to field: " << fields[i].second << '\n';
+          continue;
+        }
+        if(SContains(columnType, "char"))
+        {
+          memcpy(valueS, rowData + regAt + bytesRead, typeSize); //asi leo strings del archivo
+          bytesRead += typeSize;
+          fields[i].second = string(valueS);
+        //  std::cout << "Copied cjar to field: " << fields[i].second << '\n';
+          continue;
+        }
+      }
+    }
+
 };
+
+TableRegister GetTableRegister(char * indexTableData, string tableName);

@@ -17,7 +17,8 @@
 
 
 //Funcion para cubrir los bloquees ocupados ya que el tamDelDisco es dinamico
-char * InitBitMap(int cantidadDeBloquees, char * buffer);
 int GetSizeMultiplier(char ByteSize);
-long int GetDiskSize(const char * tamano);
+//Funcion para cubrir los bloquees ocupados ya que el tamDelDisco es dinamico
+char * InitBitMap(int cantidadDeBloquees, char * buffer);
+long int GetDiskSize(std::string tamano);
 bool CrearDisco(std::vector<std::string> argv);

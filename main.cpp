@@ -1,3 +1,4 @@
+#pragma
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -11,7 +12,7 @@
 #include <unistd.h>
 #include "CreateDisk.h"
 #include "Tables.h"
-#include "Utils.h"
+#include "Insert.h"
 #include "Select.h"
 
 using namespace std;
@@ -27,7 +28,7 @@ int main(int argc, char const *argv[]) {
 
   string menu = "";
   int x = 3;
-  string connectedDatabase = "jona.dbo";
+  string connectedDatabase = "kamil.dbo";
 
 
   while (menu.compare("exit") != 0) {
@@ -71,7 +72,7 @@ int main(int argc, char const *argv[]) {
 
       lista.insert(lista.begin(), connectedDatabase);
       lista.insert(lista.begin() + 1, tableName);
-      //SelectFromTable(lista);
+      SelectFromTable(lista);
     }
 
 

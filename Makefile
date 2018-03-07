@@ -1,9 +1,10 @@
 all:
-	g++ main.cpp CreateDisk.cpp Tables.cpp Utils.cpp Select.cpp BasicFileSystem.cpp -o main.o
+	g++ main.cpp CreateDisk.cpp Tables.cpp Utils.cpp Select.cpp BasicFileSystem.cpp Insert.cpp -o main.o
 	./main.o
 
 copypasta:
-	create database jona.dbo 200kb
-	create table Chiqui -columns=codigo,nombre,edad -types=int,char(100),double -key=codigo
-	insert Kamil -columns=codigo,nombre,edad -values=600,este no haha,88
-	select Kamil -columns=codigo,nombre,direccion -where=codigo<>1
+	create database kamil.dbo 200kb
+	create table Empleado -columns=codigo,nombre,edad -types=int,char(100),double -key=codigo
+	insert Empleado -columns=codigo,edad -values=500,198.89
+	select Empleado -columns=codigo,edad -where=codigo<>1
+	select Cliente -columns=* -where=codigo<>1

@@ -5,9 +5,10 @@
 #include <iostream>
 #include <fstream>
 #include "bitset"
-#include "BasicFileSystem.h"
-#include <utility>  
+#include <utility>
 
 using namespace std;
 
-bool SelectFromTable(std::vector<string> list);
+bool SelectFromTable(vector<string> list);
+void CopyColumns(vector<pair<string, string>> fieldsWithColumn, std::vector<std::pair<std::string, std::string>> *emptyFields);
+void PrintSeconds(vector<pair<string, string>> fields);
