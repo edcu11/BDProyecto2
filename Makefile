@@ -5,6 +5,6 @@ all:
 copypasta:
 	create database kamil.dbo 200kb
 	create table Empleado -columns=codigo,nombre,edad -types=int,char(100),double -key=codigo
-	insert Empleado -columns=codigo,edad -values=500,198.89
+	insert Empleado -columns=codigo,nombre,edad -values=122,el ingeniero me ha salvado ,09.485
 	select Empleado -columns=codigo,edad -where=codigo<>1
-	select Cliente -columns=* -where=codigo<>1
+	select Empleado -columns=* -where=codigo<>1

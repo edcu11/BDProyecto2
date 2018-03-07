@@ -127,9 +127,10 @@ bool WriteRowToBlock(vector<pair<string, string>> fields, vector<int> sizes, int
     if(SContains(fields[i].first, "char"))
     {
       char  * valor = (char *)fields[i].second.c_str();
-      memcpy(buffer + bytesWritten, valor, fields[i].second.size());
+      memcpy(buffer + posToWrite + bytesWritten, valor, fields[i].second.size());
       bytesWritten += sizes[i];
-      std::cout << "writing char: "<< fields[i].second << "size: " << fields[i].second.size() << " bytesWritten: "<< " at: " << (posToWrite + bytesWritten) << "     "<< bytesWritten << '\n';
+      std::cout << "writing char: "<< valor << "size: " << fields[i].second.size() << " bytesWritten: "<< " at: " << (posToWrite + bytesWritten) << "     "<< bytesWritten << '\n';
+      //free(valor);
       continue;
     }
     std::cout << "nothing bruh" << '\n';
