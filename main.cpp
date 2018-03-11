@@ -1,4 +1,3 @@
-#pragma
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,6 +13,7 @@
 #include "Tables.h"
 #include "Insert.h"
 #include "Select.h"
+#include "Update.h"
 
 using namespace std;
 
@@ -74,6 +74,20 @@ int main(int argc, char const *argv[]) {
       lista.insert(lista.begin() + 1, tableName);
       SelectFromTable(lista);
     }
+
+    if(SContains(menu, "update") )
+    {
+      menu = RemoveUntil(menu, " ");
+      std::string tableName = GetUntil(menu, " ");
+      menu = RemoveUntil(menu, " ");
+      std::cout << "menus: " << menu << '\n';
+      std::vector<string> lista = SplitWord(menu, '-');
+
+      lista.insert(lista.begin(), connectedDatabase);
+      lista.insert(lista.begin() + 1, tableName);
+      UpdateRegisters(lista);
+    }
+
 
 
 

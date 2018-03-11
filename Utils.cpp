@@ -17,6 +17,21 @@
 
 using namespace std;
 
+void CopyColumns(vector<pair<string, string>> fieldsWithColumn, std::vector<std::pair<std::string, std::string>> *emptyFields)
+{
+  for (size_t i = 0; i < fieldsWithColumn.size(); i++) {
+    emptyFields->push_back(make_pair(fieldsWithColumn[i].first,""));
+  }
+}
+
+void CopyFields(vector<pair<string, string>> fieldsWithColumn, std::vector<std::pair<std::string, std::string>> *emptyFields)
+{
+  for (size_t i = 0; i < fieldsWithColumn.size(); i++) {
+    
+  }
+}
+
+
 TableRegister GetTableRegister(char * indexTableData, string tableName)
 {
 

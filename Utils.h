@@ -1,3 +1,4 @@
+#pragma once
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -40,6 +41,8 @@ int GetBitmapBlocksAmount(string fileName);
 void PrintPairList(std::vector<std::pair<std::string, std::string>> fields);
 int keyAt(std::vector<std::pair<std::string, std::string>> fields, string key);
 string GetColumnsType(string field);
+void CopyColumns(vector<pair<string, string>> fieldsWithColumn, std::vector<std::pair<std::string, std::string>> *emptyFields);
+void CopyFields(vector<pair<string, string>> fieldsWithColumn, std::vector<std::pair<std::string, std::string>> *emptyFields);
 
 class TableRegister{
 

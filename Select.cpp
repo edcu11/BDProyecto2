@@ -54,27 +54,23 @@ void PrintSelectResults(TableRegister table, string columns, string databaseName
   CopyColumns(table.fields, &row.fields);
 
 
-  while (lastByte != 0) {
-
+  do {
     readFile(readBlock, buffer, (char *)databaseName.c_str());
 
     for (size_t i = 0; i < BLOCK_SIZE / registerLength; i++) {
       memcpy(&idRow, buffer + (i * registerLength), sizeof(int));
-    //  std::cout << "reading row: " << idRow << '\n';
-
       if(idRow == 0)
       {
         std::cout << "No more Regs!" << '\n';
         return;
       }
-
       row.LoadFields(buffer, (i * registerLength));
+
       PrintOnlyColumns(row.fields, columns);
     }
-
     memcpy(&lastByte, buffer + (4092), sizeof(int));
     readBlock = lastByte;
-  }
+  }  while (lastByte != 0);
 
 }
 
@@ -94,11 +90,4 @@ bool SelectFromTable(vector<string> list)
   PrintSelectResults(registerT, columns, databaseName);
 
   return true;
-}
-
-void CopyColumns(vector<pair<string, string>> fieldsWithColumn, std::vector<std::pair<std::string, std::string>> *emptyFields)
-{
-  for (size_t i = 0; i < fieldsWithColumn.size(); i++) {
-    emptyFields->push_back(make_pair(fieldsWithColumn[i].first,""));
-  }
 }
