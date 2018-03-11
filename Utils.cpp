@@ -27,7 +27,7 @@ void CopyColumns(vector<pair<string, string>> fieldsWithColumn, std::vector<std:
 void CopyFields(vector<pair<string, string>> fieldsWithColumn, std::vector<std::pair<std::string, std::string>> *emptyFields)
 {
   for (size_t i = 0; i < fieldsWithColumn.size(); i++) {
-    
+
   }
 }
 
@@ -44,7 +44,7 @@ TableRegister GetTableRegister(char * indexTableData, string tableName)
     memcpy(regTableName, indexTableData + ((i * TABLE_REGISTER_SIZE) + sizeof(int)), 28); //asi leo strings del archivo
     memcpy(&initialBlock, indexTableData + (i * TABLE_REGISTER_SIZE) + 32, sizeof(int));
 
-  //  std::cout << "regTableName:  " << idTable << " - "<< regTableName << "  --  " <<'\n';
+    //std::cout << "regTableName:  " << idTable << " - "<< regTableName << "  --  " <<'\n';
 
     if (SContains(string(regTableName), tableName)) {
       char * params = (char *)calloc(64,1);
@@ -227,6 +227,52 @@ std::string GetUntil(std::string word, std::string letter)
 {
   int indexOfLetter = word.find(letter);
   return word.substr(0, indexOfLetter);
+}
+
+
+bool WhereClauseIsTrue(vector<pair<string, string>> fields, string condition)
+{
+  if (condition.compare("") == 0)
+    return true;
+
+  condition = RemoveUntil(condition, "=");
+  std::vector<string> conditionStruct = SplitWord(condition, ' ');
+  string columnCondition = conditionStruct[0];
+  string conditionOp = conditionStruct[1];
+  string conditionValue = conditionStruct[2];
+
+  //std::cout << "Condition clumn: "<< columnCondition << "condition op: " << conditionOp << "condition value: "<< conditionValue << '\n';
+  int indexOfColumn = keyAt(fields, columnCondition);
+
+  if (indexOfColumn == -1) {
+    std::cout << "Invalid column in where clause!" << '\n';
+    return false;
+  }
+
+  return ConditionalResult(conditionOp, conditionValue, fields[indexOfColumn].second);
+}
+
+bool ConditionalResult(string condition, string conditionValue, string value)
+{
+  if (condition[0] == '=') {
+      return (value.compare(conditionValue) ==  0);
+  }
+  return MinorGreaterConverter(conditionValue, value, condition[0]);
+}
+
+
+bool MinorGreaterConverter(string conditionValue, string value, char minor)
+{
+
+  double conditionD = atof((conditionValue).c_str());
+  double valueD = atof((value).c_str());
+  bool myvalueMinor = false;
+
+  if (conditionD < valueD) {
+    myvalueMinor = true;
+  }
+
+  return (minor == '>') ? myvalueMinor : !myvalueMinor;
 }
 
 

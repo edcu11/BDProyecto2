@@ -43,6 +43,12 @@ int keyAt(std::vector<std::pair<std::string, std::string>> fields, string key);
 string GetColumnsType(string field);
 void CopyColumns(vector<pair<string, string>> fieldsWithColumn, std::vector<std::pair<std::string, std::string>> *emptyFields);
 void CopyFields(vector<pair<string, string>> fieldsWithColumn, std::vector<std::pair<std::string, std::string>> *emptyFields);
+bool WhereClauseIsTrue(vector<pair<string, string>> fields, string condition);
+bool ConditionalResult(string condition, string conditionValue, string value);
+bool MinorGreaterConverter(string conditionValue, string value, char minor);
+
+
+
 
 class TableRegister{
 

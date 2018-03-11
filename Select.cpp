@@ -27,6 +27,7 @@ void PrintOnlyColumns(vector<pair<string, string>> fields, string columns)
 {
   if (SContains(columns, "*")) {
     PrintPairList(fields);
+    return;
   }
   std::vector<std::string> columnasAmostrar = ParseParams(columns);
   int index = 0;
@@ -39,10 +40,7 @@ void PrintOnlyColumns(vector<pair<string, string>> fields, string columns)
 
 }
 
-
-
-
-void PrintSelectResults(TableRegister table, string columns, string databaseName)
+void PrintSelectResults(TableRegister table, string columns, string condition, string databaseName)
 {
   TableRegister row = TableRegister(); //FOR THE FIELDS USE ONLY
   int lastByte = -1;
@@ -60,11 +58,13 @@ void PrintSelectResults(TableRegister table, string columns, string databaseName
     for (size_t i = 0; i < BLOCK_SIZE / registerLength; i++) {
       memcpy(&idRow, buffer + (i * registerLength), sizeof(int));
       if(idRow == 0)
-      {
-        std::cout << "No more Regs!" << '\n';
-        return;
-      }
+        continue;
+
       row.LoadFields(buffer, (i * registerLength));
+
+      if(!WhereClauseIsTrue(row.fields, condition)){
+          continue;
+      }
 
       PrintOnlyColumns(row.fields, columns);
     }
@@ -74,20 +74,23 @@ void PrintSelectResults(TableRegister table, string columns, string databaseName
 
 }
 
-
-
 bool SelectFromTable(vector<string> list)
 {
   printList(list);
   string databaseName = list[0];
   string tableName = list[1];
   string columns = list[2];
+  string condition = "";
+
+  if (list.size() > 3) {
+    condition = list[3];
+  }
 
   int tableIndexBlock = GetBitmapBlocksAmount(databaseName) + 2;
 
   char * buffer = GetTableIndexData(databaseName, tableIndexBlock);
   TableRegister registerT = GetTableRegister(buffer, tableName);
-  PrintSelectResults(registerT, columns, databaseName);
+  PrintSelectResults(registerT, columns, condition, databaseName);
 
   return true;
 }

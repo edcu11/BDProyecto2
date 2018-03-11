@@ -42,10 +42,6 @@ long int GetDiskSize(std::string tamano)
 bool CrearDisco(std::vector<std::string> argv)
 {
 
-  for (size_t i = 0; i < argv.size(); i++) {
-    std::cout << "word:   " << argv[i] << '\n';
-  }
-
   long int diskSize = GetDiskSize(argv[3]);
   float blockNumber = diskSize / 4096.0f;
   float BitmapBits = blockNumber / 8.0f;
@@ -57,7 +53,6 @@ bool CrearDisco(std::vector<std::string> argv)
   ofs.seekp(diskSize, std::ios::beg);
   ofs.write("",1);
   ofs.close();
-  imprimir();
 
   memcpy(&fbuffer[sizeof(int) * 0], &BitmapBlocks, sizeof(int) );
   memcpy(&fbuffer[sizeof(int) * 1], &diskSize, sizeof(diskSize) );

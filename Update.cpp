@@ -16,7 +16,6 @@ bool UpdateRegisters(std::vector<string> list)
   vector<string> columns = ParseParams(list[2]);
   vector<string> values = ParseParams(list[3]);
   string condition = "";
-  std::cout << "size:  " << list.size() << '\n';
 
   if (list.size() > 4) {
     condition = list[4];
@@ -30,29 +29,6 @@ bool UpdateRegisters(std::vector<string> list)
   return true;
 }
 
-bool WhereClauseIsTrue(vector<pair<string, string>> fields, string condition)
-{
-  if (condition.compare("") == 0)
-    return false;
-
-  condition = RemoveUntil(condition, "=");
-  string columnCondition = GetUntil(condition, "=");
-  string conditionValue = RemoveUntil(condition, "=");
-  std::cout << "Condition clumn: "<< columnCondition << "condition value: "<< conditionValue << '\n';
-  int indexOfColumn = keyAt(fields, columnCondition);
-
-  if (indexOfColumn == -1) {
-    std::cout << "Invalid column in where clause!" << '\n';
-    return false;
-  }
-
-  if (fields[indexOfColumn].second.compare(conditionValue) ==  0)
-  {
-    return true;
-  }
-  std::cout << "this: "<<fields[indexOfColumn].second << " Is different from: "<< condition << '\n';
-  return false;
-}
 
 void UpdateResults(TableRegister table, vector<string> columns, vector<string> values, string condition, string databaseName)
 {
@@ -73,22 +49,15 @@ void UpdateResults(TableRegister table, vector<string> columns, vector<string> v
       memcpy(&idRow, buffer + (i * registerLength), sizeof(int));
       if(idRow == 0)
       {
-        std::cout << "No more Regs!" << '\n';
-        return;
+        continue;
       }
       row.LoadFields(buffer, (i * registerLength));
 
       if(!WhereClauseIsTrue(row.fields, condition)){
-        std::cout << "continuing;" << '\n';
         continue;
       }
 
-      std::cout << "before updating" << '\n';
-      PrintPairList(row.fields);
       InsertValuesToMap(&row.fields, columns, values);
-      std::cout << "after updating" << '\n';
-      PrintPairList(row.fields);
-
       WriteRowToBlock(row.fields, regSizes, readBlock, (i * registerLength), idRow, databaseName);
 
     }
@@ -99,5 +68,5 @@ void UpdateResults(TableRegister table, vector<string> columns, vector<string> v
 
   }  while (lastByte != 0);
 
-
+  std::cout << "Values Updated Succesfully!" << '\n';
 }

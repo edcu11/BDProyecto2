@@ -14,6 +14,7 @@
 #include "Insert.h"
 #include "Select.h"
 #include "Update.h"
+#include "Delete.h"
 
 using namespace std;
 
@@ -38,7 +39,6 @@ int main(int argc, char const *argv[]) {
       //menu = menu.substr(menu.find("database") + 8, menu.size() - 1);
       std::vector<string> lista = SplitWord(menu, ' ');
       CrearDisco(lista);
-      std::cout << "Database created!" << '\n';
     }
 
     if(SContains(menu, "create table") )
@@ -47,6 +47,7 @@ int main(int argc, char const *argv[]) {
 
       lista.insert(lista.begin() + 2, connectedDatabase);
       CreateTable(lista);
+      std::cout << "Table created Succesfully!" << '\n';
     }
 
     if(SContains(menu, "insert") )
@@ -54,7 +55,6 @@ int main(int argc, char const *argv[]) {
       menu = RemoveUntil(menu, " ");
       std::string tableName = GetUntil(menu, " ");
       menu = RemoveUntil(menu, " ");
-      std::cout << "menus: " << menu << '\n';
       std::vector<string> lista = SplitWord(menu, '-');
 
       lista.insert(lista.begin(), connectedDatabase);
@@ -67,7 +67,6 @@ int main(int argc, char const *argv[]) {
       menu = RemoveUntil(menu, " ");
       std::string tableName = GetUntil(menu, " ");
       menu = RemoveUntil(menu, " ");
-      std::cout << "menus: " << menu << '\n';
       std::vector<string> lista = SplitWord(menu, '-');
 
       lista.insert(lista.begin(), connectedDatabase);
@@ -80,12 +79,32 @@ int main(int argc, char const *argv[]) {
       menu = RemoveUntil(menu, " ");
       std::string tableName = GetUntil(menu, " ");
       menu = RemoveUntil(menu, " ");
-      std::cout << "menus: " << menu << '\n';
       std::vector<string> lista = SplitWord(menu, '-');
 
       lista.insert(lista.begin(), connectedDatabase);
       lista.insert(lista.begin() + 1, tableName);
       UpdateRegisters(lista);
+    }
+
+    if(SContains(menu, "delete") )
+    {
+      menu = RemoveUntil(menu, " ");
+      std::string tableName = GetUntil(menu, " ");
+      menu = RemoveUntil(menu, " ");
+      std::vector<string> lista = SplitWord(menu, '-');
+
+      lista.insert(lista.begin(), connectedDatabase);
+      lista.insert(lista.begin() + 1, tableName);
+      DeleteRegisters(lista);
+    }
+
+    if(SContains(menu, "drop table") )
+    {
+      std::vector<string> lista = SplitWord(menu, ' ');
+      lista.erase (lista.begin(),lista.begin() + 2);
+
+      lista.insert(lista.begin(), connectedDatabase);
+      DropTable(lista);
     }
 
 

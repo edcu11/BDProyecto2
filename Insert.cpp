@@ -20,21 +20,21 @@ void InsertValuesToMap(vector<pair<string, string>>  * fields, vector<string> co
   string value = "";
   int index = 0;
 
-  std::cout << "columns: " << '\n';
+  //std::cout << "columns: " << '\n';
   printList(columns);
 
   for (size_t i = 0; i < columns.size(); i++) {
     columnName = columns[i];
     value = values[i];
     index = keyAt(* fields, columnName);
-    std::cout << "got index: " << index << " Looking for: " << columnName <<"!"<< '\n';
+    //std::cout << "got index: " << index << " Looking for: " << columnName <<"!"<< '\n';
 
     if(index == -1){
-      std::cout << "invalid param" << '\n';
+      std::cout << "invalid parameter!" << '\n';
       return;
     }
 
-    std::cout << "inserting at: " << (*fields)[index].first << '\n';
+    //std::cout << "inserting at: " << (*fields)[index].first << '\n';
     (*fields)[index].second = value;
   }
 
@@ -54,13 +54,13 @@ FreeIndexData GetPosForRegister(int initialBlock, int registerLength, string dat
   while(lastByte != 0)
   {
     memcpy(&lastByte, buffer + (4092), sizeof(int));
-    std::cout << "last byte: "<< lastByte << '\n';
+    //std::cout << "last byte: "<< lastByte << '\n';
     if (lastByte == 0) {
       freeIndex.block = readedBlock;
       freeIndex.index = GetPosForNewData(buffer, registerLength + 4);
 
       if (freeIndex.index == -1) {
-        std::cout << "there was no more space, allocating..." << '\n';
+        std::cout << "there was no more space, allocating in new block..." << '\n';
         FreeIndexData bitmapData = GetFreeBlock(databaseName);
         writeFile(2 + bitmapData.block, bitmapData.buffer, (char*)databaseName.c_str()); //writing back bitmapBlock modified
 
@@ -69,13 +69,13 @@ FreeIndexData GetPosForRegister(int initialBlock, int registerLength, string dat
         freeIndex.block = bitmapData.index;
         freeIndex.index = 0;
       }
-      std::cout << "found pos for new reg: " << freeIndex.block << " --- " << freeIndex.index << '\n';
+      //std::cout << "found pos for new reg: " << freeIndex.block << " --- " << freeIndex.index << '\n';
       free(buffer);
       return freeIndex;
     }
     readFile(lastByte, buffer, (char *)databaseName.c_str());
     readedBlock = lastByte;
-    std::cout << "read new buffer!" << '\n';
+    //std::cout << "read new buffer!" << '\n';
   }
 
   return freeIndex;
@@ -91,7 +91,7 @@ bool InsertToDisk(TableRegister registerT, string databaseName)
   FreeIndexData freeIndex = GetPosForRegister(registerT.initialBlock, totalSize, databaseName);
 
   int idRow = (freeIndex.index / totalSize) + 1;
-  std::cout << "posToWrite: "<< freeIndex.index << " -- " << idRow << " -- " << freeIndex.block << '\n';
+  //std::cout << "posToWrite: "<< freeIndex.index << " -- " << idRow << " -- " << freeIndex.block << '\n';
 
   WriteRowToBlock(registerT.fields, regSizes, freeIndex.block, freeIndex.index, idRow, databaseName);
 
@@ -109,31 +109,33 @@ bool WriteRowToBlock(vector<pair<string, string>> fields, vector<int> sizes, int
   memcpy(&buffer[posToWrite], &idRow, sizeof(int)); //ASI SE ESCRIBRE UN NUMERO
 
   for (size_t i = 0; i < fields.size(); i++) {
-    std::cout << "\t\t iteracion" << '\n';
+    //std::cout << "\t\t iteracion" << '\n';
     if (SContains(fields[i].first, "int")) {
       valueI = std::stoi(fields[i].second);
       memcpy(&buffer[posToWrite + bytesWritten], &valueI, sizeof(int)); //ASI SE ESCRIBRE UN NUMERO
       bytesWritten += sizeof(int);
-      std::cout << "writing int: "<< valueI << " bytesWritten: " << " at: " << (posToWrite + bytesWritten) << "     "<< bytesWritten << '\n';
+      //std::cout << "writing int: "<< valueI << " bytesWritten: " << " at: " << (posToWrite + bytesWritten) << "     "<< bytesWritten << '\n';
       continue;
     }
     if (SContains(fields[i].first, "double")) {
       valueD = atof((fields[i].second).c_str());
       memcpy(&buffer[posToWrite + bytesWritten], &valueD, sizeof(double)); //ASI SE ESCRIBRE UN NUMERO
       bytesWritten += sizeof(double);
-      std::cout << "writing double: "<< valueD << " bytesWritten: "<< " at: " << (posToWrite + bytesWritten) << "     "<< bytesWritten << '\n';
+      //std::cout << "writing double: "<< valueD << " bytesWritten: "<< " at: " << (posToWrite + bytesWritten) << "     "<< bytesWritten << '\n';
       continue;
     }
     if(SContains(fields[i].first, "char"))
     {
-      char  * valor = (char *)fields[i].second.c_str();
-      memcpy(buffer + posToWrite + bytesWritten, valor, fields[i].second.size());
+
+      char  * valor = (char *)calloc(sizes[i], 1);
+      memcpy(valor, fields[i].second.c_str() , fields[i].second.size());
+      memcpy(buffer + posToWrite + bytesWritten, valor, sizes[i]);
       bytesWritten += sizes[i];
-      std::cout << "writing char: "<< valor << "size: " << fields[i].second.size() << " bytesWritten: "<< " at: " << (posToWrite + bytesWritten) << "     "<< bytesWritten << '\n';
+      //std::cout << "writing char: "<< valor << "size: " << fields[i].second.size() << " bytesWritten: "<< " at: " << (posToWrite + bytesWritten) << "     "<< bytesWritten << '\n';
       //free(valor);
       continue;
     }
-    std::cout << "nothing bruh" << '\n';
+    //std::cout << "nothing bruh" << '\n';
   }
 
   writeFile(blockToWrite, buffer, (char *)databaseName.c_str());
@@ -150,22 +152,22 @@ bool InsertRegister(std::vector<string> list)
 
 
   int tableIndexBlock = GetBitmapBlocksAmount(databaseName) + 2;
-  std::cout << "tableI: " << tableIndexBlock << '\n';
+  //std::cout << "tableI: " << tableIndexBlock << '\n';
 
   char * buffer = GetTableIndexData(databaseName, tableIndexBlock);
   TableRegister registerT = GetTableRegister(buffer, tableName);
 
-  PrintPairList(registerT.fields);
+  //PrintPairList(registerT.fields);
   std::vector<std::string> columns = ParseParams(columnsParams);
   std::vector<std::string> values = ParseParams(valuesParams);
 
-  printList(columns);
-  printList(values);
+//  printList(columns);
+//  printList(values);
 
   InsertValuesToMap(&registerT.fields, columns, values);
-  PrintPairList(registerT.fields);
+//  PrintPairList(registerT.fields);
 
   InsertToDisk(registerT, databaseName);
-
+  std::cout << "New Row Inserted Succesfully!" << '\n';
   return true;
 }

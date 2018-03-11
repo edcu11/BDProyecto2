@@ -21,7 +21,7 @@ int GetPosForNewData(char * buffer, int registerLength)
 {
   int idTable = 1;
   int cantidadAceptable = floor(BLOCK_SIZE / registerLength);
-  std::cout << "cantidad cantidadAceptable" << cantidadAceptable << '\n';
+  //std::cout << "cantidad cantidadAceptable" << cantidadAceptable << '\n';
   for (size_t i = 0; i < cantidadAceptable; i++) {
     memcpy(&idTable, buffer + (i * registerLength), sizeof(int));
     //std::cout << "idTable: " << idTable <<'\n';
@@ -29,7 +29,7 @@ int GetPosForNewData(char * buffer, int registerLength)
       return (i) * registerLength;
     }
   }
-  std::cout << "Table index is full!" << '\n';
+  //std::cout << "Table index is full!" << '\n';
   return -1;
 
 }
@@ -69,16 +69,16 @@ bool CreateTable(std::vector<string> list)
   printList(list);
 
   int tableIndexBlock = GetBitmapBlocksAmount(list[2]) + 2;
-  std::cout << "tableI: " << tableIndexBlock << '\n';
+  //std::cout << "tableI: " << tableIndexBlock << '\n';
 
   char * buffer = GetTableIndexData(list[2], tableIndexBlock);
   int posToWriteNewTable = GetPosForNewData(buffer, TABLE_REGISTER_SIZE);
   int idTable = (posToWriteNewTable / TABLE_REGISTER_SIZE) + 1;
-  std::cout << "pos free : " << posToWriteNewTable << '\n';
+  //std::cout << "pos free : " << posToWriteNewTable << '\n';
 
   FreeIndexData freeIndexData = GetFreeBlock(list[2]);
   writeFile(2 + freeIndexData.block, freeIndexData.buffer, (char*)list[2].c_str()); //writing back bitmapBlock modified
-  std::cout << "free block = " << freeIndexData.index << '\n';
+  //std::cout << "free block = " << freeIndexData.index << '\n';
 
   if (posToWriteNewTable == -1)
     return false;
@@ -88,7 +88,7 @@ bool CreateTable(std::vector<string> list)
   if (SContains(fieldsLine, "ERROR"))
     return false;
 
-  std::cout << "resu " << fieldsLine << '\n';
+  //std::cout << "resu " << fieldsLine << '\n';
   memcpy(&buffer[posToWriteNewTable], &idTable, sizeof(int) ); //ASI SE ESCRIBRE UN NUMERO
   memcpy(buffer + posToWriteNewTable + 4, (char *)list[3].c_str(), list[3].size());
   memcpy(&buffer[posToWriteNewTable + 32], &freeIndexData.index, sizeof(int) ); //ASI SE ESCRIBRE UN NUMERO
@@ -96,7 +96,7 @@ bool CreateTable(std::vector<string> list)
 
   writeFile(tableIndexBlock, buffer, (char*)list[2].c_str());
 
-  std::cout << "writing : " << buffer << '\n';
+  //std::cout << "writing : " << buffer << '\n';
   free(buffer);
   return true;
 
