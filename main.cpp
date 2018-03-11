@@ -25,24 +25,45 @@ string getInput()
     return valor;
 }
 
+bool CheckConnection(string connectedDatabase)
+{
+  if (connectedDatabase.compare("") == 0) {
+    std::cout << "Connect to database first!" << '\n';
+    return false;
+  }
+  return true;
+}
+
 int main(int argc, char const *argv[]) {
 
   string menu = "";
   int x = 3;
-  string connectedDatabase = "kamil.dbo";
+  string connectedDatabase = "";
 
 
   while (menu.compare("exit") != 0) {
 
+    if(SContains(menu, "connect") )
+    {
+      std::vector<string> lista = SplitWord(menu, ' ');
+      if (CheckDiskExistence(lista[1]))
+          connectedDatabase = lista[1];
+    }
+    
+    if(!CheckConnection(connectedDatabase))
+      menu = "";
+
     if(SContains(menu, "create database") )
     {
       //menu = menu.substr(menu.find("database") + 8, menu.size() - 1);
+
       std::vector<string> lista = SplitWord(menu, ' ');
       CrearDisco(lista);
     }
 
     if(SContains(menu, "create table") )
     {
+
       std::vector<string> lista = SplitWord(menu, ' ');
 
       lista.insert(lista.begin() + 2, connectedDatabase);
@@ -52,6 +73,7 @@ int main(int argc, char const *argv[]) {
 
     if(SContains(menu, "insert") )
     {
+
       menu = RemoveUntil(menu, " ");
       std::string tableName = GetUntil(menu, " ");
       menu = RemoveUntil(menu, " ");
@@ -64,6 +86,7 @@ int main(int argc, char const *argv[]) {
 
     if(SContains(menu, "select") )
     {
+
       menu = RemoveUntil(menu, " ");
       std::string tableName = GetUntil(menu, " ");
       menu = RemoveUntil(menu, " ");
@@ -76,6 +99,7 @@ int main(int argc, char const *argv[]) {
 
     if(SContains(menu, "update") )
     {
+
       menu = RemoveUntil(menu, " ");
       std::string tableName = GetUntil(menu, " ");
       menu = RemoveUntil(menu, " ");
@@ -88,6 +112,7 @@ int main(int argc, char const *argv[]) {
 
     if(SContains(menu, "delete") )
     {
+
       menu = RemoveUntil(menu, " ");
       std::string tableName = GetUntil(menu, " ");
       menu = RemoveUntil(menu, " ");
@@ -100,6 +125,7 @@ int main(int argc, char const *argv[]) {
 
     if(SContains(menu, "drop table") )
     {
+
       std::vector<string> lista = SplitWord(menu, ' ');
       lista.erase (lista.begin(),lista.begin() + 2);
 

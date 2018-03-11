@@ -56,7 +56,7 @@ bool CrearDisco(std::vector<std::string> argv)
 
   memcpy(&fbuffer[sizeof(int) * 0], &BitmapBlocks, sizeof(int) );
   memcpy(&fbuffer[sizeof(int) * 1], &diskSize, sizeof(diskSize) );
-  memcpy(fbuffer + 64, (char *)argv[2].c_str(), 10); //ASI SE COPIA UN STRING
+  memcpy(fbuffer + 64, (char *)argv[2].c_str(), argv[2].size()); //ASI SE COPIA UN STRING
   writeFile(1, fbuffer, (char *)argv[2].c_str());
 
   char * bitMapBuffer = (char *) calloc(4096  * (BitmapBlocks + 2), 1 );
@@ -73,4 +73,28 @@ bool CrearDisco(std::vector<std::string> argv)
      std::cout << "created disk with size: " << diskSize << '\n';
 
    return true;
+ }
+
+
+
+ bool CheckDiskExistence(string databaseName)
+ {
+   char* fbuffer = (char *)calloc(4096,1);
+   readFile(1, fbuffer, (char *)databaseName.c_str());
+   char * valueS = (char *)calloc(databaseName.size(),1);
+   memcpy(valueS, fbuffer + 64, databaseName.size()); //asi leo strings del archivo
+   string name = string(valueS);
+
+   if (databaseName.compare(name) == 0) {
+     std::cout << "Database Succesfully connected!" << '\n';
+     return true;
+   }
+   std::cout << "Unable to connect to Database!" << '\n';
+   return false;
+
+
+
+
+
+
  }

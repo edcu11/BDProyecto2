@@ -289,7 +289,7 @@ int GetBitmapBlocksAmount(string fileName)
 void PrintPairList(std::vector<std::pair<std::string, std::string>> fields)
 {
   for (size_t i = 0; i < fields.size(); i++)
-    std::cout <<"\t\t" << fields[i].first  << ": " << fields[i].second;
+    std::cout <<"\t\t" << SplitWord(fields[i].first, '!')[0]  << ": " << fields[i].second;
   std::cout << '\n';
 }
 

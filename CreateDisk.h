@@ -22,3 +22,4 @@ int GetSizeMultiplier(char ByteSize);
 char * InitBitMap(int cantidadDeBloquees, char * buffer);
 long int GetDiskSize(std::string tamano);
 bool CrearDisco(std::vector<std::string> argv);
+bool CheckDiskExistence(std::string databaseName);

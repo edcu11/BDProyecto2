@@ -105,6 +105,8 @@ bool WriteRowToBlock(vector<pair<string, string>> fields, vector<int> sizes, int
   int valueI = 0;
   double valueD = 0.0;
   int bytesWritten = 4;
+  char  * valor; (char *)calloc(1, 1);
+
 
   memcpy(&buffer[posToWrite], &idRow, sizeof(int)); //ASI SE ESCRIBRE UN NUMERO
 
@@ -126,8 +128,7 @@ bool WriteRowToBlock(vector<pair<string, string>> fields, vector<int> sizes, int
     }
     if(SContains(fields[i].first, "char"))
     {
-
-      char  * valor = (char *)calloc(sizes[i], 1);
+      valor = (char *)calloc(sizes[i], 1);
       memcpy(valor, fields[i].second.c_str() , fields[i].second.size());
       memcpy(buffer + posToWrite + bytesWritten, valor, sizes[i]);
       bytesWritten += sizes[i];
